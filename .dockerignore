@@ -1,0 +1,15 @@
+npm-debug.log
+.git
+.env
+.nyc_output
+coverage
+.devcontainer
+.idea
+.vscode
+dist
+node_modules
+.dockerignore
+.gitignore
+.prettierrc
+eslint.config.mjs
+README.md
