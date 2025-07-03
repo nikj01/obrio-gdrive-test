@@ -1,6 +1,8 @@
 services:
   files-service:
     container_name: files-service
+    env_file:
+      - .env
     build:
       context: .
       dockerfile: .devcontainer/Dockerfile
@@ -10,6 +12,8 @@ services:
     command: yarn start:dev
     ports:
       - "3000:3000"
+      - "9229:9229"
+      - "{$SERVICE_PORT}:{$SERVICE_PORT}"
     volumes:
       - ./src:/usr/src/app/src
       - ./tsconfig.json:/usr/src/app/tsconfig.json
