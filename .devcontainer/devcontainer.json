@@ -10,10 +10,9 @@
 
   //	 Use 'forwardPorts' to make a list of ports inside the container available locally.
 
-  //	 Use 'postCreateCommand' to run commands after the container is created.
   "postCreateCommand": "yarn install",
 
-  //     "remoteUser": "root",
+  "shutdownAction": "stopCompose",
 
   // Configure tool-specific properties.
   "customizations": {
