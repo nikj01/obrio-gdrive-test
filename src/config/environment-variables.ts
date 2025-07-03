@@ -1,81 +1,93 @@
-import { IsNotEmpty, IsNumber, IsString, Max, Min, validateSync } from "class-validator";
+import {
+  IsNotEmpty,
+  IsNumber,
+  IsString,
+  Max,
+  Min,
+  MinLength,
+  validateSync,
+} from "class-validator";
 import { plainToInstance } from "class-transformer";
 
 export class EnvironmentVariables {
+  @IsNotEmpty({ message: "SERVICE_PORT is required" })
   @IsNumber(
     { allowNaN: false, allowInfinity: false },
     { message: "SERVICE_PORT value must be a number" },
   )
   @Min(1000, { message: "Minimal SERVICE_PORT value is 1000" })
   @Max(65535, { message: "Maximal SERVICE_PORT value is 65535" })
-  @IsNotEmpty({ message: "SERVICE_PORT is required" })
   readonly SERVICE_PORT: number;
 
-  @IsString({ message: "POSTGRES_URL must be a string" })
-  @IsNotEmpty({ message: "POSTGRES_URL is required" })
-  readonly POSTGRES_URL: string;
+  @IsNotEmpty({ message: "DATABASE_URL is required" })
+  @IsString({ message: "DATABASE_URL must be a string" })
+  readonly DATABASE_URL: string;
 
-  @IsString({ message: "POSTGRES_USER must be a string" })
-  @IsNotEmpty({ message: "POSTGRES_USER is required" })
-  readonly POSTGRES_USER: string;
+  @IsNotEmpty({ message: "DATABASE_USER is required" })
+  @IsString({ message: "DATABASE_USER must be a string" })
+  @MinLength(4, { message: "DATABASE_USER must be at least 4 characters long" })
+  readonly DATABASE_USER: string;
 
-  @IsString({ message: "POSTGRES_PASSWORD must be a string" })
-  @IsNotEmpty({ message: "POSTGRES_PASSWORD is required" })
-  readonly POSTGRES_PASSWORD: string;
+  @IsNotEmpty({ message: "DATABASE_PASSWORD is required" })
+  @IsString({ message: "DATABASE_PASSWORD must be a string" })
+  @MinLength(4, { message: "DATABASE_PASSWORD must be at least 4 characters long" })
+  readonly DATABASE_PASSWORD: string;
 
-  @IsString({ message: "POSTGRES_DB must be a string" })
-  @IsNotEmpty({ message: "POSTGRES_DB is required" })
-  readonly POSTGRES_DB: string;
+  @IsNotEmpty({ message: "DATABASE_NAME is required" })
+  @IsString({ message: "DATABASE_NAME must be a string" })
+  @MinLength(2, { message: "DATABASE_PASSWORD must be at least 2 characters long" })
+  readonly DATABASE_NAME: string;
 
+  @IsNotEmpty({ message: "POSTGRES_PORT is required" })
   @IsNumber(
     { allowNaN: false, allowInfinity: false },
     { message: "POSTGRES_PORT value must be a number" },
   )
-  @Min(1000, { message: "Minimal POSTGRES_PORT value is 1000" })
-  @Max(65535, { message: "Maximal POSTGRES_PORT value is 65535" })
-  @IsNotEmpty({ message: "POSTGRES_PORT is required" })
-  readonly POSTGRES_PORT: number;
+  @Min(1000, { message: "Minimal DATABASE_PORT value is 1000" })
+  @Max(65535, { message: "Maximal DATABASE_PORT value is 65535" })
+  readonly DATABASE_PORT: number;
 
-  @IsString({ message: "REDIS_HOST must be a string" })
-  @IsNotEmpty({ message: "REDIS_HOST is required" })
-  readonly REDIS_HOST: string;
+  @IsNotEmpty({ message: "CACHE_HOST is required" })
+  @IsString({ message: "CACHE_HOST must be a string" })
+  readonly CACHE_HOST: string;
 
-  @IsString({ message: "REDIS_PASSWORD must be a string" })
-  @IsNotEmpty({ message: "REDIS_PASSWORD is required" })
-  readonly REDIS_PASSWORD: string;
+  @IsNotEmpty({ message: "CACHE_PASSWORD is required" })
+  @IsString({ message: "CACHE_PASSWORD must be a string" })
+  @MinLength(4, { message: "CACHE_PASSWORD must be at least 4 characters long" })
+  readonly CACHE_PASSWORD: string;
 
-  @IsString({ message: "REDIS_USER must be a string" })
-  @IsNotEmpty({ message: "REDIS_USER is required" })
-  readonly REDIS_USER: string;
+  @IsNotEmpty({ message: "CACHE_USER is required" })
+  @IsString({ message: "CACHE_USER must be a string" })
+  @MinLength(4, { message: "CACHE_USER must be at least 4 characters long" })
+  readonly CACHE_USER: string;
 
+  @IsNotEmpty({ message: "CACHE_PORT is required" })
   @IsNumber(
     { allowNaN: false, allowInfinity: false },
-    { message: "REDIS_PORT value must be a number" },
+    { message: "CACHE_PORT value must be a number" },
   )
-  @Min(1000, { message: "Minimal REDIS_PORT value is 1000" })
-  @Max(65535, { message: "Maximal REDIS_PORT value is 65535" })
-  @IsNotEmpty({ message: "REDIS_PORT is required" })
-  readonly REDIS_PORT: number;
+  @Min(1000, { message: "Minimal CACHE_PORT value is 1000" })
+  @Max(65535, { message: "Maximal CACHE_PORT value is 65535" })
+  readonly CACHE_PORT: number;
 
+  @IsNotEmpty({ message: "CACHE_TTL is required" })
   @IsNumber(
     { allowNaN: false, allowInfinity: false },
     { message: "CACHE_TTL value must be a number" },
   )
   @Min(1, { message: "Minimal CACHE_TTL value is 1" })
-  @Max(65535, { message: "Maximal CACHE_TTL value is 65535" })
-  @IsNotEmpty({ message: "CACHE_TTL is required" })
   readonly CACHE_TTL: number;
 
+  @IsNotEmpty({ message: "FILE_MAX_SIZE is required" })
   @IsNumber(
     { allowNaN: false, allowInfinity: false },
     { message: "FILE_MAX_SIZE value must be a number" },
   )
   @Min(1, { message: "Minimal FILE_MAX_SIZE value is 1 MB" })
-  @IsNotEmpty({ message: "FILE_MAX_SIZE is required" })
   readonly FILE_MAX_SIZE: number;
 
-  @IsString({ message: "FILE_TYPES must be a string" })
   @IsNotEmpty({ message: "FILE_TYPES is required" })
+  @IsString({ message: "FILE_TYPES must be a string" })
   readonly FILE_TYPES: string;
 }
 

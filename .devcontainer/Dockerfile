@@ -11,3 +11,5 @@ COPY --chown=node:node . .
 RUN chown -R node:node /usr/src/app
 
 USER node
+
+CMD ["yarn", "start:dev"]

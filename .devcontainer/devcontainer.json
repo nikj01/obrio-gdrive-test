@@ -4,23 +4,20 @@
   "name": "nest-files-service",
   "dockerComposeFile": "../docker-compose.yml",
   "service": "files-service",
-
-  // Features to add to the dev container. More info: https://containers.dev/features.
-  // "features": {},
-
-  //	 Use 'forwardPorts' to make a list of ports inside the container available locally.
-
-  "postCreateCommand": "yarn install",
+  "workspaceFolder": "/usr/src/app",
 
   "shutdownAction": "stopCompose",
 
-  // Configure tool-specific properties.
+  "remoteEnv": {
+    "PODMAN_USERNS": "keep-id"
+  },
+  "updateRemoteUserUID": false,
+  "containerUser": "node",
+
+
   "customizations": {
     "jetbrains": {
       "backend": "WebStorm"
     }
   }
-
-  // Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
-//   "remoteUser": "root"
 }

@@ -1,0 +1,91 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model File {
+  id String @id @default(cuid())
+
+  originalUrl      String  @map("original_url") @db.VarChar(2048)
+  originalFilename String? @map("original_filename") @db.VarChar(255)
+
+  googleDriveId  String? @map("google_drive_id") @db.VarChar(255)
+  googleDriveUrl String? @map("google_drive_url") @db.VarChar(2048)
+
+  fileSize BigInt? @map("file_size")
+  mimeType String? @map("mime_type") @db.VarChar(100)
+
+  status FileStatus @default(PENDING)
+
+  errorMessage String? @map("error_message") @db.Text
+  retryCount   Int     @default(0) @map("retry_count")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  downloadJobs DownloadJob[]
+
+  @@index([status])
+  @@index([createdAt])
+  @@index([originalUrl])
+  @@map("files")
+}
+
+model DownloadJob {
+  id String @id @default(cuid())
+
+  fileId String @map("file_id")
+  file   File   @relation(fields: [fileId], references: [id], onDelete: Cascade)
+
+  jobId    String? @map("job_id") @db.VarChar(255)
+  priority Int     @default(0)
+
+  status JobStatus @default(WAITING)
+
+  startedAt   DateTime? @map("started_at")
+  completedAt DateTime? @map("completed_at")
+  failedAt    DateTime? @map("failed_at")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([status])
+  @@index([createdAt])
+  @@index([fileId])
+  @@map("download_jobs")
+}
+
+model UploadSession {
+  id String @id @default(cuid())
+
+  sessionId      String @unique @map("session_id")
+  totalFiles     Int    @map("total_files")
+  completedFiles Int    @default(0) @map("completed_files")
+  failedFiles    Int    @default(0) @map("failed_files")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([sessionId])
+  @@index([createdAt])
+  @@map("upload_sessions")
+}
+
+enum FileStatus {
+  PENDING
+  DOWNLOADING
+  UPLOADING
+  COMPLETED
+  FAILED
+}
+
+enum JobStatus {
+  WAITING
+  ACTIVE
+  COMPLETED
+  FAILED
+}
