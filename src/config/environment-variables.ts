@@ -47,36 +47,36 @@ export class EnvironmentVariables {
   @Max(65535, { message: "Maximal DATABASE_PORT value is 65535" })
   readonly DATABASE_PORT: number;
 
-  @IsNotEmpty({ message: "CACHE_HOST is required" })
-  @IsString({ message: "CACHE_HOST must be a string" })
-  readonly CACHE_HOST: string;
+  @IsNotEmpty({ message: "REDIS_HOST is required" })
+  @IsString({ message: "REDIS_HOST must be a string" })
+  readonly REDIS_HOST: string;
 
-  @IsNotEmpty({ message: "CACHE_PASSWORD is required" })
-  @IsString({ message: "CACHE_PASSWORD must be a string" })
-  @MinLength(4, { message: "CACHE_PASSWORD must be at least 4 characters long" })
-  readonly CACHE_PASSWORD: string;
+  @IsNotEmpty({ message: "REDIS_PASSWORD is required" })
+  @IsString({ message: "REDIS_PASSWORD must be a string" })
+  @MinLength(4, { message: "REDIS_PASSWORD must be at least 4 characters long" })
+  readonly REDIS_PASSWORD: string;
 
-  @IsNotEmpty({ message: "CACHE_USER is required" })
-  @IsString({ message: "CACHE_USER must be a string" })
-  @MinLength(4, { message: "CACHE_USER must be at least 4 characters long" })
-  readonly CACHE_USER: string;
+  @IsNotEmpty({ message: "REDIS_USER is required" })
+  @IsString({ message: "REDIS_USER must be a string" })
+  @MinLength(4, { message: "REDIS_USER must be at least 4 characters long" })
+  readonly REDIS_USER: string;
 
-  @IsNotEmpty({ message: "CACHE_PORT is required" })
+  @IsNotEmpty({ message: "REDIS_PORT is required" })
   @IsNumber(
     { allowNaN: false, allowInfinity: false },
-    { message: "CACHE_PORT value must be a number" },
+    { message: "REDIS_PORT value must be a number" },
   )
-  @Min(1000, { message: "Minimal CACHE_PORT value is 1000" })
-  @Max(65535, { message: "Maximal CACHE_PORT value is 65535" })
-  readonly CACHE_PORT: number;
+  @Min(1000, { message: "Minimal REDIS_PORT value is 1000" })
+  @Max(65535, { message: "Maximal REDIS_PORT value is 65535" })
+  readonly REDIS_PORT: number;
 
-  @IsNotEmpty({ message: "CACHE_TTL is required" })
+  @IsNotEmpty({ message: "REDIS_TTL is required" })
   @IsNumber(
     { allowNaN: false, allowInfinity: false },
-    { message: "CACHE_TTL value must be a number" },
+    { message: "REDIS_TTL value must be a number" },
   )
-  @Min(1, { message: "Minimal CACHE_TTL value is 1" })
-  readonly CACHE_TTL: number;
+  @Min(1, { message: "Minimal REDIS_TTL value is 1" })
+  readonly REDIS_TTL: number;
 
   @IsNotEmpty({ message: "FILE_MAX_SIZE is required" })
   @IsNumber(
