@@ -6,6 +6,8 @@
   "service": "files-service",
   "workspaceFolder": "/usr/src/app",
 
+  "postCreateCommand": "yarn db:setup",
+
   "shutdownAction": "stopCompose",
 
   "remoteEnv": {

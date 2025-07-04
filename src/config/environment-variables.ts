@@ -78,17 +78,13 @@ export class EnvironmentVariables {
   @Min(1, { message: "Minimal REDIS_TTL value is 1" })
   readonly REDIS_TTL: number;
 
-  @IsNotEmpty({ message: "FILE_MAX_SIZE is required" })
-  @IsNumber(
-    { allowNaN: false, allowInfinity: false },
-    { message: "FILE_MAX_SIZE value must be a number" },
-  )
-  @Min(1, { message: "Minimal FILE_MAX_SIZE value is 1 MB" })
-  readonly FILE_MAX_SIZE: number;
+  @IsNotEmpty({ message: "Keys to external storage are required" })
+  @IsString({ message: "Keys to external storage must be a string" })
+  EXTERNAL_STORAGE_KEYS: JSON;
 
-  @IsNotEmpty({ message: "FILE_TYPES is required" })
-  @IsString({ message: "FILE_TYPES must be a string" })
-  readonly FILE_TYPES: string;
+  @IsNotEmpty({ message: "External storage main folder ID is required" })
+  @IsString({ message: "External storage main folder ID must be a string" })
+  EXTERNAL_STORAGE_MAIN_FOLDER_ID: string;
 }
 
 export function validate(config: Record<string, unknown>) {

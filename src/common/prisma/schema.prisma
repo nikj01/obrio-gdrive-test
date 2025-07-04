@@ -8,61 +8,62 @@ datasource db {
 }
 
 model File {
-  id String @id @default(cuid())
+  id      String @id @default(uuid(7))
+  ownerId String @map("owner_id") @db.VarChar(255)
 
   originalUrl      String  @map("original_url") @db.VarChar(2048)
   originalFilename String? @map("original_filename") @db.VarChar(255)
 
-  googleDriveId  String? @map("google_drive_id") @db.VarChar(255)
-  googleDriveUrl String? @map("google_drive_url") @db.VarChar(2048)
+  storageFileId      String? @map("storage_file_id") @db.VarChar(255)
+  storageViewUrl     String? @map("storage_view_url") @db.VarChar(2048)
+  storageDownloadUrl String? @map("storage_download_url") @db.VarChar(2048)
 
   fileSize BigInt? @map("file_size")
   mimeType String? @map("mime_type") @db.VarChar(100)
+  hash     String? @db.VarChar(255)
 
   status FileStatus @default(PENDING)
 
   errorMessage String? @map("error_message") @db.Text
-  retryCount   Int     @default(0) @map("retry_count")
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  downloadJobs DownloadJob[]
+  uploadSessionId String        @map("upload_session_id")
+  uploadSession   UploadSession @relation(fields: [uploadSessionId], references: [id], onDelete: Cascade)
+
+  jobs JobRecord[]
 
   @@index([status])
   @@index([createdAt])
   @@index([originalUrl])
+  @@index([uploadSessionId])
   @@map("files")
 }
 
-model DownloadJob {
-  id String @id @default(cuid())
+model JobRecord {
+  id String @id @default(uuid(7))
 
   fileId String @map("file_id")
   file   File   @relation(fields: [fileId], references: [id], onDelete: Cascade)
 
-  jobId    String? @map("job_id") @db.VarChar(255)
-  priority Int     @default(0)
+  jobId  BigInt?   @unique @map("job_id")
+  status JobStatus @default(PENDING)
 
-  status JobStatus @default(WAITING)
-
-  startedAt   DateTime? @map("started_at")
-  completedAt DateTime? @map("completed_at")
-  failedAt    DateTime? @map("failed_at")
-
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  failedAt  DateTime? @map("failed_at")
 
   @@index([status])
   @@index([createdAt])
   @@index([fileId])
-  @@map("download_jobs")
+  @@map("jobs_records")
 }
 
 model UploadSession {
-  id String @id @default(cuid())
+  id String @id @default(uuid(7))
 
-  sessionId      String @unique @map("session_id")
+  files          File[]
   totalFiles     Int    @map("total_files")
   completedFiles Int    @default(0) @map("completed_files")
   failedFiles    Int    @default(0) @map("failed_files")
@@ -70,22 +71,18 @@ model UploadSession {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  @@index([sessionId])
   @@index([createdAt])
   @@map("upload_sessions")
 }
 
 enum FileStatus {
   PENDING
-  DOWNLOADING
-  UPLOADING
   COMPLETED
   FAILED
 }
 
 enum JobStatus {
-  WAITING
-  ACTIVE
+  PENDING
   COMPLETED
   FAILED
 }

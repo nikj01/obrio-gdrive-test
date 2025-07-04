@@ -5,7 +5,8 @@ import { ConfigModule } from "@nestjs/config";
 import { validate } from "./config/environment-variables";
 import { FilesModule } from "./files/files.module";
 import { JobsModule } from "./jobs/jobs.module";
-import { SessionsModule } from './sessions/sessions.module';
+import { SessionsModule } from "./sessions/sessions.module";
+import { CacheModule } from "./common/cache/cache.module";
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { SessionsModule } from './sessions/sessions.module';
       isGlobal: true,
       envFilePath: [".env"],
     }),
+    CacheModule,
     FilesModule,
     JobsModule,
     SessionsModule,

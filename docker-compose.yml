@@ -9,6 +9,8 @@ services:
       dockerfile: .devcontainer/Dockerfile
       target: dev
     userns_mode: "keep-id"
+    environment:
+      - GOOGLE_APPLICATION_CREDENTIALS=/keys/gdrive.keys.json
     working_dir: /usr/src/app
     ports:
       - "9229:9229"
@@ -21,9 +23,11 @@ services:
       - ./tsconfig.build.json:/usr/src/app/tsconfig.build.json
       - ./nest-cli.json:/usr/src/app/nest-cli.json
       - ./.env:/usr/src/app/.env
+      - ./keys/gdrive.keys.json:/keys/gdrive.keys.json:ro
     depends_on:
       - postgres
       - pgadmin
+      - redis
     command: ["sleep","infinity"]  
 
   postgres:
@@ -54,6 +58,20 @@ services:
     depends_on:
       - postgres
 
+  redis:
+    container_name: files-service-redis
+    env_file: .env
+    image: redis:8.0.2-alpine
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+      REDIS_USER: ${REDIS_USER}
+    ports:
+      - "${REDIS_PORT}:6379"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+
 volumes:
   postgres_data:
   pgadmin_data:
+  redis_data:
