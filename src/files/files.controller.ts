@@ -1,8 +1,10 @@
-import { Controller, Post, Body, Logger } from "@nestjs/common";
+import { Controller, Post, Body, Logger, Get, Param, Query } from "@nestjs/common";
 import { FilesService } from "./files.service";
-import { UploadFilesDto } from "./dto/upload-files.dto";
+import { UploadFilesRequestDto } from "./dtos/upload-files/upload-files-request.dto";
 import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
-import { UploadFilesResponses } from "./files.swagger";
+import { GetFilesByUserResponses, UploadFilesResponses } from "./files.swagger";
+import { GetFilesRequestDto } from "./dtos/get-files/get-files-request.dto";
+import { GetFilesResponseDto } from "./dtos/get-files/get-files-response.dto";
 
 @ApiTags("Files")
 @Controller("files")
@@ -16,8 +18,22 @@ export class FilesController {
   @ApiResponse(UploadFilesResponses.response400)
   @ApiResponse(UploadFilesResponses.response500)
   @Post()
-  uploadFiles(@Body() dto: UploadFilesDto) {
+  async uploadFiles(@Body() dto: UploadFilesRequestDto): Promise<void> {
     this.logger.log("Received an incoming request");
-    return this.filesService.uploadFilesToStorage(dto);
+    return await this.filesService.uploadFilesToStorage(dto);
+  }
+
+  @ApiOperation({ summary: "Get files by user ID" })
+  @ApiResponse(GetFilesByUserResponses.response200)
+  @ApiResponse(GetFilesByUserResponses.response404)
+  @ApiResponse(GetFilesByUserResponses.response500)
+  @Get(":ownerId")
+  async getFilesByUser(
+    @Param("ownerId") ownerId: string,
+    @Query("page") page: number,
+    @Query("limit") limit: number,
+  ): Promise<GetFilesResponseDto> {
+    this.logger.log(`Fetching files for user with ID: ${ownerId}`);
+    return await this.filesService.getFilesByUser({ ownerId, page, limit });
   }
 }

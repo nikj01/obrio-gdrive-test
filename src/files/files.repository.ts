@@ -2,14 +2,31 @@ import { Injectable, Logger } from "@nestjs/common";
 import { PrismaService } from "../common/prisma/prisma.service";
 import { PrismaErrorHandler } from "../common/prisma/prisma.error-handler";
 import { File, FileStatus } from "@prisma/client";
-import { UpdateFileMetadataDto } from "./dto/update-file-metadata.dto";
-import { FileUploadFailedDto } from "./dto/file-upload-failed.dto";
+import { UpdateFileMetadataDto } from "./dtos/upload-files/update-file-metadata.dto";
+import { FileUploadFailedDto } from "./dtos/upload-files/file-upload-failed.dto";
+import { GetFilesRequestDto } from "./dtos/get-files/get-files-request.dto";
+import { extension } from "prisma-paginate";
+import { GetFilesResponseDto } from "./dtos/get-files/get-files-response.dto";
+import { plainToInstance } from "class-transformer";
+import { FileResponseDto } from "./dtos/get-files/get-file-response.dto";
+import { PaginationResponseDto } from "./dtos/get-files/pagination-response.dto";
+import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 
 @Injectable()
 export class FilesRepository {
   private readonly logger = new Logger(FilesRepository.name);
+  private readonly extendedPrisma: ReturnType<typeof this.prismaService.$extends>;
 
-  constructor() {}
+  constructor(private readonly prismaService: PrismaService) {
+    this.extendedPrisma = this.prismaService.$extends(extension);
+
+    // Отладочная информация
+    this.logger.log("ExtendedPrisma created");
+    this.logger.log(
+      "Available methods on file model:",
+      Object.getOwnPropertyNames(this.extendedPrisma.file),
+    );
+  }
 
   @PrismaErrorHandler()
   async completeFileUpload(dto: UpdateFileMetadataDto): Promise<File> {
@@ -61,5 +78,123 @@ export class FilesRepository {
 
     this.logger.error(`File with ID: ${id} status set to FAILED`);
     return updatedFile;
+  }
+
+  // @PrismaErrorHandler()
+  // async getFilesByUser(dto: GetFilesRequestDto): Promise<GetFilesResponseDto> {
+  //   const { ownerId, page, limit } = dto;
+  //   this.logger.log(
+  //     `Fetching files for user with ID: ${ownerId}, page: ${page}, limit: ${limit}`,
+  //   );
+  //
+  //   const result = await (this.extendedPrisma.file as any).paginate(
+  //     {
+  //       where: {
+  //         ownerId,
+  //       },
+  //       orderBy: {
+  //         createdAt: "desc",
+  //       },
+  //     },
+  //     {
+  //       page,
+  //       limit,
+  //     },
+  //   );
+  //
+  //   this.logger.log(`Fetched ${result.result.length} files for user with ID: ${ownerId}`);
+  //
+  //   // const mappedFiles = result.result.map(file => ({
+  //   //   id: file.id,
+  //   //   originalUrl: file.originalUrl,
+  //   //   originalFilename: file.originalFilename,
+  //   //   storageViewUrl: file.storageViewUrl,
+  //   //   storageDownloadUrl: file.storageDownloadUrl,
+  //   // }));
+  //
+  //   const mappedFiles: FileResponseDto[] = plainToInstance(
+  //     FileResponseDto,
+  //     result.result,
+  //     {
+  //       excludeExtraneousValues: true,
+  //     },
+  //   );
+  //   const pagination = plainToInstance(
+  //     PaginationResponseDto,
+  //     {
+  //       page: result.page,
+  //       limit: result.limit,
+  //       count: result.count,
+  //       totalPages: result.totalPages,
+  //       hasNextPage: result.hasNextPage,
+  //       hasPrevPage: result.hasPrevPage,
+  //       exceedCount: result.exceedCount,
+  //       exceedTotalPages: result.exceedTotalPages,
+  //     },
+  //     { excludeExtraneousValues: true },
+  //   );
+  //
+  //   return { files: mappedFiles, pagination };
+  //
+  //   // return {
+  //   //   files: mappedFiles,
+  //   //   pagination: {
+  //   //     page: result.page,
+  //   //     limit: result.limit,
+  //   //     count: result.count,
+  //   //     totalPages: result.totalPages,
+  //   //     hasNextPage: result.hasNextPage,
+  //   //     hasPrevPage: result.hasPrevPage,
+  //   //     exceedCount: result.exceedCount,
+  //   //     exceedTotalPages: result.exceedTotalPages,
+  //   //   },
+  //   // };
+  // }
+
+  @PrismaErrorHandler()
+  async getFilesByUser(dto: GetFilesRequestDto): Promise<GetFilesResponseDto> {
+    const { ownerId, page, limit } = dto;
+    this.logger.log(
+      `Fetching files for user with ID: ${ownerId}, page: ${page}, limit: ${limit}`,
+    );
+
+    const result = await (this.extendedPrisma.file as any).paginate(
+      {
+        where: {
+          ownerId,
+        },
+        orderBy: {
+          createdAt: "desc",
+        },
+      },
+      {
+        page,
+        limit,
+      },
+    );
+
+    if (result.result.length === 0) {
+      this.logger.error(`No files found for user with ID: ${ownerId}`);
+      throw new PrismaClientKnownRequestError(
+        `No files found for user with ID: ${ownerId}. Check if the user exists or has uploaded files.`,
+        {
+          code: "P2025",
+          clientVersion: "6.11.1",
+          meta: { target: `User ${ownerId}` },
+        },
+      );
+    }
+
+    this.logger.log(`Fetched ${result.result.length} files for user with ID: ${ownerId}`);
+
+    const files = result.result.map((file: File) =>
+      plainToInstance(FileResponseDto, file, { excludeExtraneousValues: true }),
+    );
+
+    const pagination = plainToInstance(PaginationResponseDto, result, {
+      excludeExtraneousValues: true,
+    });
+
+    return { files, pagination };
   }
 }

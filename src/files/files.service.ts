@@ -1,5 +1,5 @@
 import { Injectable, Logger } from "@nestjs/common";
-import { UploadFilesDto } from "./dto/upload-files.dto";
+import { UploadFilesRequestDto } from "./dtos/upload-files/upload-files-request.dto";
 import {
   SessionsRepository,
   UploadSessionWithFiles,
@@ -9,6 +9,9 @@ import { UPLOAD_FILES_JOB, UPLOAD_FILES_QUEUE } from "./bull/constants";
 import { Queue } from "bullmq";
 import { File } from "@prisma/client";
 import { BullUploadFileJob } from "./processor/files.processor.interfaces";
+import { GetFilesRequestDto } from "./dtos/get-files/get-files-request.dto";
+import { FilesRepository } from "./files.repository";
+import { GetFilesResponseDto } from "./dtos/get-files/get-files-response.dto";
 
 @Injectable()
 export class FilesService {
@@ -18,9 +21,10 @@ export class FilesService {
     @InjectQueue(UPLOAD_FILES_QUEUE)
     private readonly uploadFilesQueue: Queue,
     private readonly sessionsRepository: SessionsRepository,
+    private readonly filesRepository: FilesRepository,
   ) {}
 
-  async uploadFilesToStorage(dto: UploadFilesDto) {
+  async uploadFilesToStorage(dto: UploadFilesRequestDto) {
     const session: UploadSessionWithFiles =
       await this.sessionsRepository.createSessionWithFiles(dto);
 
@@ -47,5 +51,12 @@ export class FilesService {
         uploadSessionId: file.uploadSessionId,
       },
     }));
+  }
+
+  async getFilesByUser(dto: GetFilesRequestDto): Promise<GetFilesResponseDto> {
+    const { ownerId } = dto;
+    this.logger.log(`Fetching files for user with ID: ${ownerId}`);
+
+    return await this.filesRepository.getFilesByUser(dto);
   }
 }

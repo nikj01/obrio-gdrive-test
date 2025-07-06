@@ -8,7 +8,7 @@ import {
 } from "class-validator";
 import { ApiProperty } from "@nestjs/swagger";
 
-export class UploadFilesDto {
+export class UploadFilesRequestDto {
   @ApiProperty({
     description: "Owner ID",
     nullable: false,
@@ -18,8 +18,8 @@ export class UploadFilesDto {
     minLength: 1,
     maxLength: 255,
   })
-  @IsNotEmpty({ message: "Owner ID is required." })
-  @IsString({ message: "Owner ID must be a string." })
+  @IsNotEmpty({ message: "Owner ID is required" })
+  @IsString({ message: "Owner ID must be a string" })
   ownerId: string;
 
   @ApiProperty({
@@ -39,12 +39,12 @@ export class UploadFilesDto {
     minItems: 1,
     maxItems: 100,
   })
-  @ArrayNotEmpty({ message: "At least one file URL is required." })
-  @IsArray({ message: "fileUrls must be an array." })
+  @ArrayNotEmpty({ message: "At least one file URL is required" })
+  @IsArray({ message: "fileUrls must be an array" })
   @MinLength(1, {
     each: true,
-    message: "Each file URL must not be an empty string.",
+    message: "Each file URL must not be an empty string",
   })
-  @IsUrl({}, { each: true, message: "Each file URL must be a valid URL." })
+  @IsUrl({}, { each: true, message: "Each file URL must be a valid URL" })
   fileUrls: string[];
 }

@@ -2,7 +2,7 @@ import { Injectable, Logger } from "@nestjs/common";
 import { PrismaService } from "../common/prisma/prisma.service";
 import { PrismaErrorHandler } from "../common/prisma/prisma.error-handler";
 import { Prisma, UploadSession } from "@prisma/client";
-import { UploadFilesDto } from "../files/dto/upload-files.dto";
+import { UploadFilesRequestDto } from "../files/dtos/upload-files/upload-files-request.dto";
 import { UpdateSessionDto } from "./dtos/update-session.dto";
 
 export type UploadSessionWithFiles = Prisma.UploadSessionGetPayload<{
@@ -16,7 +16,9 @@ export class SessionsRepository {
   constructor(private readonly prismaService: PrismaService) {}
 
   @PrismaErrorHandler()
-  async createSessionWithFiles(dto: UploadFilesDto): Promise<UploadSessionWithFiles> {
+  async createSessionWithFiles(
+    dto: UploadFilesRequestDto,
+  ): Promise<UploadSessionWithFiles> {
     const { ownerId, fileUrls } = dto;
     this.logger.log(`Creating session for user ${ownerId} with ${fileUrls.length} files`);
 
