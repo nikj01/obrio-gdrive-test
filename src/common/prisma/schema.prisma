@@ -1,0 +1,88 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model File {
+  id      String @id @default(uuid(7))
+  ownerId String @map("owner_id") @db.VarChar(255)
+
+  originalUrl      String  @map("original_url") @db.VarChar(2048)
+  originalFilename String? @map("original_filename") @db.VarChar(255)
+
+  storageFileId      String? @map("storage_file_id") @db.VarChar(255)
+  storageViewUrl     String? @map("storage_view_url") @db.VarChar(2048)
+  storageDownloadUrl String? @map("storage_download_url") @db.VarChar(2048)
+
+  fileSize BigInt? @map("file_size")
+  mimeType String? @map("mime_type") @db.VarChar(100)
+  hash     String? @db.VarChar(255)
+
+  status FileStatus @default(PENDING)
+
+  errorMessage String? @map("error_message") @db.Text
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  uploadSessionId String        @map("upload_session_id")
+  uploadSession   UploadSession @relation(fields: [uploadSessionId], references: [id], onDelete: Cascade)
+
+  jobs JobRecord[]
+
+  @@index([status])
+  @@index([createdAt])
+  @@index([originalUrl])
+  @@index([uploadSessionId])
+  @@map("files")
+}
+
+model JobRecord {
+  id String @id @default(uuid(7))
+
+  fileId String @map("file_id")
+  file   File   @relation(fields: [fileId], references: [id], onDelete: Cascade)
+
+  jobId  BigInt?   @unique @map("job_id")
+  status JobStatus @default(PENDING)
+
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  failedAt  DateTime? @map("failed_at")
+
+  @@index([status])
+  @@index([createdAt])
+  @@index([fileId])
+  @@map("jobs_records")
+}
+
+model UploadSession {
+  id String @id @default(uuid(7))
+
+  files          File[]
+  totalFiles     Int    @map("total_files")
+  completedFiles Int    @default(0) @map("completed_files")
+  failedFiles    Int    @default(0) @map("failed_files")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([createdAt])
+  @@map("upload_sessions")
+}
+
+enum FileStatus {
+  PENDING
+  COMPLETED
+  FAILED
+}
+
+enum JobStatus {
+  PENDING
+  COMPLETED
+  FAILED
+}
