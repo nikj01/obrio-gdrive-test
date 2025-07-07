@@ -14,7 +14,7 @@ export class RedisConfigService {
   }
 
   get getCacheTTL(): number {
-    return +this.configService.get<number>("CACHE_TTL", { infer: true }) * 1000;
+    return +this.configService.get<number>("REDIS_TTL", { infer: true }) * 1000;
   }
 
   get getTTLWithJitter(): number {

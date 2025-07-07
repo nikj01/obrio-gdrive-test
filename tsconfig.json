@@ -20,6 +20,9 @@
     "paths": {
       "@prisma/client": ["./node_modules/@prisma/client"],
       "@app/config/*": ["src/config/*"]
-    }
+    },
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "resolveJsonModule": true
   }
 }

@@ -9,9 +9,19 @@ import { SessionsModule } from "../sessions/sessions.module";
 import { JobsModule } from "../jobs/jobs.module";
 import { BullMqModule } from "./bull/bullmq.module";
 import { FilesProcessorHelper } from "./processor/helpers/files.processor.helper";
+import { CacheModule } from "../common/cache/cache.module";
+import { RedisConfigModule } from "@app/config/redis/redis.config.module";
 
 @Module({
-  imports: [PrismaModule, BullMqModule, SessionsModule, JobsModule, StorageModule],
+  imports: [
+    PrismaModule,
+    BullMqModule,
+    SessionsModule,
+    JobsModule,
+    StorageModule,
+    CacheModule,
+    RedisConfigModule,
+  ],
   controllers: [FilesController],
   providers: [FilesService, FilesRepository, FileUploadProcessor, FilesProcessorHelper],
 })

@@ -1,98 +1,100 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# File Transfer Service
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
-
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+A service for uploading files to Google Drive via HTTP requests with an array of file links.
 
 ## Description
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+The service allows processing an array of file URLs and uploading these files to Google Drive. It's a kind of transfer service: you provide it with a file link - it uploads the file to Google Drive. There's a possibility to run three service replicas with load balancing.
 
-## Project setup
+Google Drive integration is implemented through an adapter, so theoretically there's a possibility to replace it with another storage, for example, AWS S3.
+
+## Technology Stack
+
+- **Backend**: Node.js, NestJS
+- **Database**: PostgreSQL, Prisma ORM
+- **Queue**: Redis, BullMQ
+- **Storage**: Google Drive API
+- **Documentation**: Swagger
+- **Load Balancing**: Nginx
+- **Containerization**: Podman, Podman Compose
+
+## Features
+
+- HTTP API for uploading files by array of links
+- Asynchronous processing of large files
+- API for retrieving list of uploaded files
+- Scalability with multiple replicas support
+- Load balancing between replicas
+
+## Installation and Setup
+
+### Prerequisites
+
+1. Docker and Docker Compose (or Podman)
+2. Configured Google Cloud project with Google Drive API
+3. Google service account with access keys
+
+### Google Drive Setup
+
+1. Create a project in Google Cloud Console
+2. Enable Google Drive API
+3. Create a service account
+4. Generate and download access keys
+5. Rename the keys file and place it into the project's root `keys/gdrive.keys.json`
+6. Create a folder on Google Drive
+7. Share the folder with your service account
+8. Save the folder ID in the `.env` file
+
+Detailed guide: https://dev.to/mearjuntripathi/upload-files-on-drive-with-nodejs-15j2
+
+### Environment Variables Setup
+
+Copy the example `.env` file and specify:
+- `GOOGLE_DRIVE_FOLDER_ID` - Google Drive folder ID
+- Other variables as needed
+
+**Important**: If running the service locally (not in container), change in `.env`:
+- `DATABASE_URL` to `localhost`
+- `REDIS_HOST` to `localhost`
+
+### Launch Options
+
+#### Option 1: Dev Container (recommended for development)
+
+The project includes Dev Container configuration in the `.devcontainer` folder:
+
+1. Open the project in WebStorm or VSCode
+2. Launch Dev Container
+3. The service will be started as a single instance with all necessary environment
+
+**Note**: Configuration tested with Podman
+
+#### Option 2: Docker Compose (recommended for staging/production)
 
 ```bash
-$ yarn install
+# Launch with single replica
+docker-compose up
+
+# Launch with three replicas (with load balancer)
+docker-compose up --scale files-service=3
 ```
 
-## Compile and run the project
+**Note**: Compose file tested with Podman
 
-```bash
-# development
-$ yarn run start
+## API Endpoints
 
-# watch mode
-$ yarn run start:dev
+API documentation is available through Swagger UI after starting the service on `http://localhost:1080/swagger#`.
 
-# production mode
-$ yarn run start:prod
-```
+### Main endpoints:
 
-## Run tests
+- `POST /files` - upload files by array of links
+- `GET /files/{ownerId}` - get list of uploaded files for a specific owner
 
-```bash
-# unit tests
-$ yarn run test
+## Testing
 
-# e2e tests
-$ yarn run test:e2e
+E2E tests should be available as a collection [here](https://red-desert-824312.postman.co/workspace/OBRIO-test-task~44a777f3-3c47-479e-ab40-27e6a4d6320a/collection/22715560-39688144-0c08-4032-9814-e4e8b6cab197?action=share&creator=46562933).
+You can also try the API by using Swagger.
 
-# test coverage
-$ yarn run test:cov
-```
+## Development
 
-## Deployment
-
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
-
-```bash
-$ yarn install -g @nestjs/mau
-$ mau deploy
-```
-
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
-
-## Resources
-
-Check out a few resources that may come in handy when working with NestJS:
-
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+For local development, it's recommended to use Dev Container, which includes all necessary dependencies and configurations.

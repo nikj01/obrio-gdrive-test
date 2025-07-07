@@ -11,7 +11,7 @@ export const ValidationPipeConfig: ValidationPipeOptions = {
   },
   whitelist: true,
   forbidNonWhitelisted: true,
-  forbidUnknownValues: false,
+  forbidUnknownValues: true,
 
   disableErrorMessages: false,
 

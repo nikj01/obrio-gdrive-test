@@ -7,6 +7,7 @@ import { FilesModule } from "./files/files.module";
 import { JobsModule } from "./jobs/jobs.module";
 import { SessionsModule } from "./sessions/sessions.module";
 import { CacheModule } from "./common/cache/cache.module";
+import { HealthModule } from "./health/health.module";
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { CacheModule } from "./common/cache/cache.module";
     FilesModule,
     JobsModule,
     SessionsModule,
+    HealthModule,
   ],
   controllers: [AppController],
   providers: [AppService],

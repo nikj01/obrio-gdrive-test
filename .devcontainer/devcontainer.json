@@ -1,12 +1,11 @@
 // For format details, see https://aka.ms/devcontainer.json. For config options, see the
 // README at: https://github.com/devcontainers/templates/tree/main/src/typescript-node
 {
-  "name": "nest-files-service",
-  "dockerComposeFile": "../docker-compose.yml",
+  "dockerComposeFile": "../docker-compose.devcontainer.yml",
   "service": "files-service",
   "workspaceFolder": "/usr/src/app",
 
-  "postCreateCommand": "yarn db:setup",
+ "postCreateCommand": "yarn db:setup",
 
   "shutdownAction": "stopCompose",
 

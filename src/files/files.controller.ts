@@ -1,10 +1,21 @@
-import { Controller, Post, Body, Logger, Get, Param, Query } from "@nestjs/common";
+import {
+  Controller,
+  Post,
+  Body,
+  Logger,
+  Get,
+  Param,
+  Query,
+  UseInterceptors,
+} from "@nestjs/common";
 import { FilesService } from "./files.service";
 import { UploadFilesRequestDto } from "./dtos/upload-files/upload-files-request.dto";
 import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { GetFilesByUserResponses, UploadFilesResponses } from "./files.swagger";
-import { GetFilesRequestDto } from "./dtos/get-files/get-files-request.dto";
 import { GetFilesResponseDto } from "./dtos/get-files/get-files-response.dto";
+import { CacheInterceptor, CacheTTL } from "@nestjs/cache-manager";
+import { plainToInstance } from "class-transformer";
+import { GetFilesRequestDto } from "./dtos/get-files/get-files-request.dto";
 
 @ApiTags("Files")
 @Controller("files")
@@ -28,12 +39,13 @@ export class FilesController {
   @ApiResponse(GetFilesByUserResponses.response404)
   @ApiResponse(GetFilesByUserResponses.response500)
   @Get(":ownerId")
+  @UseInterceptors(CacheInterceptor)
+  @CacheTTL(120)
   async getFilesByUser(
     @Param("ownerId") ownerId: string,
-    @Query("page") page: number,
-    @Query("limit") limit: number,
+    @Query() dto: GetFilesRequestDto,
   ): Promise<GetFilesResponseDto> {
     this.logger.log(`Fetching files for user with ID: ${ownerId}`);
-    return await this.filesService.getFilesByUser({ ownerId, page, limit });
+    return this.filesService.getFilesByUser({ ...dto, ownerId });
   }
 }
